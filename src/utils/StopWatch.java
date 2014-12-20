@@ -1,5 +1,10 @@
 package utils;
 
+/**
+ * 
+ * @author Bogdan Trofimov
+ *
+ */
 public class StopWatch {
 	
 	private long startTime;

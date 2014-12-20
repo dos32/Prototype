@@ -2,16 +2,44 @@ package trainer;
 
 import static utils.Utils.conn;
 
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.Insets;
+import java.io.PrintStream;
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 
+import javax.swing.BoxLayout;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+
+import utils.AppLock;
 import utils.Logger;
 import utils.StopWatch;
+import utils.outputRedirect.OutputRedirect;
 
-public class Trainer {
+/**
+ * 
+ * @author Bogdan Trofimov
+ *
+ */
+public class Trainer extends JFrame {
+	private static final long serialVersionUID = 2177298796154436547L;
+
+	static double getProgressPercent() throws Exception {
+		CallableStatement progress = conn().prepareCall("{ call _trained_docs_percent() }");
+		ResultSet res = progress.executeQuery();
+		if(res.next())
+			return res.getDouble(1);
+		else
+			throw new Exception("Can't fetch result");
+	}
 	
 	static int getMaxNeurons(long datasetSize) {
 		int res = (int) Math.round(Math.pow(
@@ -100,6 +128,8 @@ public class Trainer {
 				.prepareCall("{ ? = call doc_get_random() }");
 			getRandomDoc.registerOutParameter(1, Types.BIGINT);
 			for(int i = 0; i < 10; i++) {
+				iteration++;
+				trainer.refreshInfo();
 				getRandomDoc.execute();
 				Logger.Logf("\ninner iteration: %s/10\n", i);
 				Logger.Logf("handleClusters on %s\n",
@@ -110,12 +140,73 @@ public class Trainer {
 		conn().commit();
 	}
 	
-	public static void main(String[] args) throws SQLException {
-		for(int i = 0; i < 500; i++) {
-			Logger.Logf("*** iteration: %s ***\n", i);
-			train();
+	static int iteration = 0;
+	static Trainer trainer;
+	
+	JLabel label1, label2;
+	JTextArea console1, console2;
+	
+	public Trainer() {
+		setTitle("Trainer");
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		Container pane = getContentPane();
+		setLayout(new BoxLayout(pane, BoxLayout.Y_AXIS));
+		
+		label1 = new JLabel();
+		pane.add(label1);
+        label1.setAlignmentX(Component.CENTER_ALIGNMENT);
+		
+        label2 = new JLabel();
+		pane.add(label2);
+		label2.setAlignmentX(Component.CENTER_ALIGNMENT);
+		
+		JPanel jp = new JPanel();
+		pane.add(jp);
+//		jp.setSize(10, 10);
+		jp.setLayout(new BoxLayout(jp, BoxLayout.LINE_AXIS));
+		
+		console1 = new JTextArea();
+		JScrollPane jsp1 = new JScrollPane(console1);
+		jp.add(jsp1);
+		console1.setMargin(new Insets(2, 2, 2, 2));
+		console1.setEditable(false);
+
+		console2 = new JTextArea();
+		JScrollPane jsp2 = new JScrollPane(console2);
+		jp.add(jsp2);
+		console2.setMargin(new Insets(2, 2, 2, 2));
+		console2.setEditable(false);
+		
+		setSize(500, 300);
+		setVisible(true);
+	}
+	
+	void refreshInfo() {
+		try {
+			label1.setText(String.format("progress = %.2f%%", getProgressPercent()));
+			label2.setText(String.format("iteration = %d", iteration));
+		} catch (Exception e) {
+			label1.setText(e.getMessage());
 		}
-		System.out.println("training done");
+	}
+	
+	public static void main(String[] args) throws SQLException {
+		if(!AppLock.setLock("Trainer"))
+			System.err.println("Trainer already runned");
+		else {
+			trainer = new Trainer();
+			OutputRedirect oro = new OutputRedirect(s -> trainer.console1.append(s + "\n"));
+			System.setOut(new PrintStream(oro.getOutputStream()));
+			oro.start();
+			OutputRedirect ore = new OutputRedirect(s -> trainer.console2.append(s + "\n"));
+			System.setErr(new PrintStream(ore.getOutputStream()));
+			ore.start();
+			while(true) {
+//				iteration++;
+//				trainer1.refreshInfo();
+				train();
+			}
+		}
 	}
 	
 }

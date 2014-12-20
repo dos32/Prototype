@@ -1,5 +1,10 @@
 package utils;
 
+/**
+ * 
+ * @author Bogdan Trofimov
+ *
+ */
 public class Logger {
 	
 	public static void Log(String... s) {

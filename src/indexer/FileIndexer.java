@@ -1,10 +1,11 @@
 package indexer;
 
+import static utils.Utils.conn;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
@@ -15,9 +16,12 @@ import java.util.ArrayList;
 
 import utils.Logger;
 import utils.StopWatch;
-import utils.Utils;
-import static utils.Utils.conn;
 
+/**
+ * 
+ * @author Bogdan Trofimov
+ *
+ */
 public class FileIndexer {
 	
 	private static CallableStatement insTerm;

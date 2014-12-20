@@ -8,11 +8,17 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
+import java.util.stream.Stream;
 
 import utils.Logger;
 import utils.Utils;
 import static utils.Utils.conn;
 
+/**
+ * 
+ * @author Bogdan Trofimov
+ *
+ */
 public class Indexer {
 	
 	private static CallableStatement qPush;
@@ -145,8 +151,10 @@ public class Indexer {
 	}
 	
 	public static void main(String[] args) throws IOException, SQLException {
+		File[] files = (File[]) Stream.of(args).map(e -> new File(e)).toArray();
+		index(files);
 //		index(new File[] {new File("G:\\docs\\")});
-		index();
+//		index();
 	}
 
 }

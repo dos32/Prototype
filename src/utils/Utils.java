@@ -4,6 +4,11 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
+/**
+ * 
+ * @author Bogdan Trofimov
+ *
+ */
 public class Utils {
 	
 	public static String pathDelimeter = "\\";
@@ -19,8 +24,8 @@ public class Utils {
 			try {
 				conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/AIST",
 					"postgres",
-					"1"
-					//"1234567890qwertyuiopasdfghjkl;"
+//					"1"
+					"1234567890qwertyuiopasdfghjkl;"
 					);
 				conn.setAutoCommit(false);
 			} catch (SQLException e) {

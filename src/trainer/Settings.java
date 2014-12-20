@@ -1,5 +1,10 @@
 package trainer;
 
+/**
+ * 
+ * @author Bogdan Trofimov
+ *
+ */
 public class Settings {
 
 	public static int createNeuronPeriod = 5;

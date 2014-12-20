@@ -5,6 +5,11 @@ import java.io.IOException;
 
 import org.mozilla.universalchardet.UniversalDetector;
 
+/**
+ * 
+ * @author Bogdan Trofimov
+ *
+ */
 public class CharsetDetector {
 
 	public static String detect(File file) throws IOException {
